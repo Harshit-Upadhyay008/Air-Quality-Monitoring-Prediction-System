@@ -70,6 +70,17 @@ const CONFIG = {
             airQuality: 15.0,
             rawValue: 200
         }
+    },
+
+    // Email Alert Configuration (EmailJS)
+    EMAIL_ALERT: {
+        ENABLED: true,
+        EMAILJS_PUBLIC_KEY: 'lwvwt1dVQ4TeRgS8T',   // EmailJS → Account → General → Public Key
+        EMAILJS_SERVICE_ID: 'service_a5bw593',
+        EMAILJS_TEMPLATE_ID: 'template_4b1slgq',
+        AQI_THRESHOLD: 70,            // Send alert when AQI exceeds this value
+        COOLDOWN_MINUTES: 15,          // Minimum gap between consecutive alerts
+        RECIPIENT_EMAIL: 'goluprawal3@gmail.com'  // Email address to receive alerts
     }
 };
 

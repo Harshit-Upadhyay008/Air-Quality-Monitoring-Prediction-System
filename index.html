@@ -3,54 +3,30 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Air Quality Monitoring Dashboard</title>
 
     <!-- Styles -->
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=20260415-1" />
 
     <!-- Charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body class="theme-dark">
     <div class="dashboard-shell">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo-circle">AQ</div>
-                <div class="logo-text">
-                    <span class="logo-title">AQMPS</span>
-                    <span class="logo-sub">Realtime Monitor</span>
-                </div>
-            </div>
-
-            <nav class="sidebar-nav">
-                <a href="#" class="nav-item active">
-                    <span class="nav-dot"></span>
-                    <span>Dashboard</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <span class="nav-dot"></span>
-                    <span>Analytics</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <span class="nav-dot"></span>
-                    <span>Sensors</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <span class="nav-dot"></span>
-                    <span>Settings</span>
-                </a>
-            </nav>
-
-            <div class="sidebar-footer">
-                <p>ESP32 • MQ135 • DHT11</p>
-                <p class="fw-light">Components Used</p>
-            </div>
-        </aside>
-
         <!-- Main Content -->
         <div class="main-area">
+            <div class="sky-ambient" aria-hidden="true">
+                <div class="sky-layer sky-layer--rear"></div>
+                <div class="sky-layer sky-layer--mid"></div>
+                <div class="sky-layer sky-layer--front"></div>
+            </div>
             <!-- Header -->
             <header class="dashboard-header">
                 <div class="header-left">
@@ -60,10 +36,42 @@
                     </p>
                 </div>
                 <div class="header-right">
+                    <button
+                        id="alert-toggle"
+                        class="theme-toggle-btn alert-toggle-btn"
+                        type="button"
+                        aria-label="Toggle email alerts"
+                    >
+                        &#128276; Alerts: Off
+                    </button>
+                    <button
+                        id="test-alert"
+                        class="theme-toggle-btn test-alert-btn"
+                        type="button"
+                        aria-label="Send test email alert"
+                    >
+                        &#9889; Test Alert
+                    </button>
+                    <button
+                        id="data-source-toggle"
+                        class="theme-toggle-btn data-source-btn"
+                        type="button"
+                        aria-label="Switch to demo data mode"
+                    >
+                        Data: Live API
+                    </button>
+                    <button
+                        id="theme-toggle"
+                        class="theme-toggle-btn"
+                        type="button"
+                        aria-label="Switch to light mode"
+                    >
+                        Light Mode
+                    </button>
                     <div class="header-meta">
                         <span id="current-time" class="time-display"></span>
                         <span id="connection-status" class="status-pill status-connected">
-                            ● Connected
+                            Connected
                         </span>
                     </div>
                 </div>
@@ -98,9 +106,26 @@
                                 </div>
                                 <div class="detail-item">
                                     <span class="label">Health Impact</span>
-                                    <span class="value-soft">
+                                    <span class="value-soft" id="health-impact-text">
                                         Ideal for outdoor activities
                                     </span>
+                                </div>
+                                <div
+                                    id="health-warning"
+                                    class="health-warning severity-poor"
+                                    role="alert"
+                                    aria-live="polite"
+                                    hidden
+                                >
+                                    <p id="health-warning-title" class="health-warning-title">
+                                        Health Warning
+                                    </p>
+                                    <p
+                                        id="health-warning-message"
+                                        class="health-warning-message"
+                                    >
+                                        Asthma patients should avoid outdoor activity right now.
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -112,14 +137,14 @@
                                 <h3>Temperature</h3>
                                 <p class="card-subtitle">Ambient environment</p>
                             </div>
-                            <span class="unit">°C</span>
+                            <span class="unit">&deg;C</span>
                         </div>
                         <div class="card-body sensor-body">
                             <div class="sensor-value sensor-value-glow" id="temp-value">
                                 28.5
                             </div>
                             <div class="sensor-trend">
-                                <span class="trend up">↑ 0.3°C</span>
+                                <span class="trend up">&uarr; 0.3&deg;C</span>
                                 <span class="time-ago">last change: 5 min</span>
                             </div>
                         </div>
@@ -138,7 +163,7 @@
                                 65.2
                             </div>
                             <div class="sensor-trend">
-                                <span class="trend down">↓ 1.2%</span>
+                                <span class="trend down">&darr; 1.2%</span>
                                 <span class="time-ago">last change: 5 min</span>
                             </div>
                         </div>
@@ -157,7 +182,7 @@
                                 425
                             </div>
                             <div class="sensor-trend">
-                                <span class="trend stable">→ Stable</span>
+                                <span class="trend stable">&rarr; Stable</span>
                                 <span class="time-ago">last change: 5 min</span>
                             </div>
                         </div>
@@ -232,7 +257,7 @@
                                 </p>
                             </div>
                             <button class="export-btn" id="export-data">
-                                ⬇ Export CSV
+                                &darr; Export CSV
                             </button>
                         </div>
                         <div class="card-body">
@@ -241,7 +266,7 @@
                                     <thead>
                                         <tr>
                                             <th>Timestamp</th>
-                                            <th>Temperature (°C)</th>
+                                            <th>Temperature (&deg;C)</th>
                                             <th>Humidity (%)</th>
                                             <th>Air Quality</th>
                                             <th>Status</th>
@@ -271,7 +296,7 @@
                             <div class="stats-grid">
                                 <div class="stat-item">
                                     <span class="stat-label">Avg Temperature</span>
-                                    <span class="stat-value" id="avg-temp">28.3°C</span>
+                                    <span class="stat-value" id="avg-temp">28.3&deg;C</span>
                                 </div>
                                 <div class="stat-item">
                                     <span class="stat-label">Avg Humidity</span>
@@ -311,16 +336,20 @@
             <!-- Footer -->
             <footer class="dashboard-footer">
                 <p>
-                    Air Quality Monitoring System • ESP32 + MQ135 + DHT11 • Data updates
-                    every 20 seconds
+                    Air Quality Monitoring System &bull; ESP32 + MQ135 + DHT11 &bull; Data updates every 20 seconds
                 </p>
+                <div id="alert-status-bar" class="alert-status-bar" hidden>
+                    <span id="alert-status-text">No alerts sent yet</span>
+                </div>
             </footer>
         </div>
     </div>
 
     <!-- JavaScript Files -->
-    <script src="config.js"></script>
-    <script src="charts.js"></script>
-    <script src="app.js"></script>
+    <script src="config.js?v=20260413-2"></script>
+    <script src="charts.js?v=20260415-2"></script>
+    <script src="app.js?v=20260415-2"></script>
 </body>
 </html>
+
+
